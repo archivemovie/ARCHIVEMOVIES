@@ -1,52 +1,80 @@
-'use strict';
+let boxes = document.querySelectorAll(".box");
 
-/**
- * navbar variables
- */
+let turn = "X";
+let isGameOver = false;
 
-const navOpenBtn = document.querySelector("[data-menu-open-btn]");
-const navCloseBtn = document.querySelector("[data-menu-close-btn]");
-const navbar = document.querySelector("[data-navbar]");
-const overlay = document.querySelector("[data-overlay]");
+boxes.forEach(e =>{
+    e.innerHTML = ""
+    e.addEventListener("click", ()=>{
+        if(!isGameOver && e.innerHTML === ""){
+            e.innerHTML = turn;
+            cheakWin();
+            cheakDraw();
+            changeTurn();
+        }
+    })
+})
 
-const navElemArr = [navOpenBtn, navCloseBtn, overlay];
-
-for (let i = 0; i < navElemArr.length; i++) {
-
-  navElemArr[i].addEventListener("click", function () {
-
-    navbar.classList.toggle("active");
-    overlay.classList.toggle("active");
-    document.body.classList.toggle("active");
-
-  });
-
+function changeTurn(){
+    if(turn === "X"){
+        turn = "O";
+        document.querySelector(".bg").style.left = "85px";
+    }
+    else{
+        turn = "X";
+        document.querySelector(".bg").style.left = "0";
+    }
 }
 
+function cheakWin(){
+    let winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ]
+    for(let i = 0; i<winConditions.length; i++){
+        let v0 = boxes[winConditions[i][0]].innerHTML;
+        let v1 = boxes[winConditions[i][1]].innerHTML;
+        let v2 = boxes[winConditions[i][2]].innerHTML;
 
+        if(v0 != "" && v0 === v1 && v0 === v2){
+            isGameOver = true;
+            document.querySelector("#results").innerHTML = turn + " win";
+            document.querySelector("#play-again").style.display = "inline"
 
-/**
- * header sticky
- */
+            for(j = 0; j<3; j++){
+                boxes[winConditions[i][j]].style.backgroundColor = "#08D9D6"
+                boxes[winConditions[i][j]].style.color = "#000"
+            }
+        }
+    }
+}
 
-const header = document.querySelector("[data-header]");
+function cheakDraw(){
+    if(!isGameOver){
+        let isDraw = true;
+        boxes.forEach(e =>{
+            if(e.innerHTML === "") isDraw = false;
+        })
 
-window.addEventListener("scroll", function () {
+        if(isDraw){
+            isGameOver = true;
+            document.querySelector("#results").innerHTML = "Draw";
+            document.querySelector("#play-again").style.display = "inline"
+        }
+    }
+}
 
-  window.scrollY >= 10 ? header.classList.add("active") : header.classList.remove("active");
+document.querySelector("#play-again").addEventListener("click", ()=>{
+    isGameOver = false;
+    turn = "X";
+    document.querySelector(".bg").style.left = "0";
+    document.querySelector("#results").innerHTML = "";
+    document.querySelector("#play-again").style.display = "none";
 
-});
-
-
-
-/**
- * go top
- */
-
-const goTopBtn = document.querySelector("[data-go-top]");
-
-window.addEventListener("scroll", function () {
-
-  window.scrollY >= 500 ? goTopBtn.classList.add("active") : goTopBtn.classList.remove("active");
-
-});
+    boxes.forEach(e =>{
+        e.innerHTML = "";
+        e.style.removeProperty("background-color");
+        e.style.color = "#fff"
+    })
+})
